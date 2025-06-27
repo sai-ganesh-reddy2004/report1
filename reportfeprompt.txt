@@ -1,0 +1,194 @@
+
+Detailed Frontend Development Prompt for Angular Reports Page
+Objective: Develop a robust, role-based Angular frontend for the Analytics Reporting Microservice. The application should clearly separate functionalities for Admin and Student users, interacting with the provided REST API endpoints.
+
+Target Output:
+
+Complete Angular project structure (components, services, modules, routing).
+
+All necessary TypeScript, HTML, and SCSS/CSS files.
+
+Clearly defined Angular services for API interaction.
+
+Authentication/Authorization scaffolding (e.g., mock login, route guards for roles).
+
+Optional (if AI tool supports image generation): Visual mockups or wireframes for both Admin and Student report pages.
+
+Section 1: Overall Application Requirements
+Technology Stack: Angular (latest stable version, preferably Angular 17+), TypeScript, HTML, SCSS.
+
+Backend Service: Analytics Reporting Microservice (running on http://localhost:9091).
+
+API Endpoints to Integrate:
+
+GET /analytics/reports/all (Admin: Get all reports)
+
+GET /analytics/reports/user/{userId} (Admin/Student: Get reports for a specific user)
+
+GET /analytics/reports/exam/{examId} (Admin: Get reports for a specific exam)
+
+GET /analytics/reports/user/{userId}/exam/{examId} (Admin/Student: Get a specific report)
+
+GET /analytics/reports/topper (Admin: Get topper information)
+
+GET /analytics/reports/rank/{userId} (Student: Get rank for a specific user)
+
+POST /analytics/reports?userId={userId}&examId={examId} (Admin: Create a new report) - Note: This endpoint is for report generation in the backend. The UI might trigger this, or it might be triggered from the Exam Management Service. For the frontend, focus on viewing/deleting.
+
+DELETE /analytics/reports?userId={userId}&examId={examId} (Admin: Delete report by user and exam)
+
+DELETE /analytics/reports?userId={userId} (Admin: Delete all reports for a user)
+
+DELETE /analytics/reports?examId={examId} (Admin: Delete all reports for an exam)
+
+DELETE /analytics/reports/all (Admin: Delete all reports)
+
+Authentication/Authorization:
+
+Assume a simple mock login mechanism.
+
+Upon login, the application determines if the user is ADMIN or STUDENT.
+
+Implement Angular Route Guards (CanActivate) to restrict access to pages based on user roles.
+
+Display relevant navigation links based on the user's role.
+
+Data Models (Angular Interfaces/DTOs):
+
+Define TypeScript interfaces for ReportSummaryDTO and ResponseDTO (from the online-exam-common module, assuming it's available for reference in node_modules or a local path).
+
+ReportSummaryDTO:
+
+TypeScript
+
+interface ReportSummaryDTO {
+  reportId: number;
+  examId: number;
+  userId: number;
+  totalMarks: number;
+  performanceMetrics: string;
+}
+ResponseDTO:
+
+TypeScript
+
+interface ResponseDTO {
+  responseId: number;
+  userId: number;
+  examId: number;
+  questionId: number;
+  submittedAnswer: string;
+  marksObtained: number;
+}
+Define any other specific DTOs required for UI interactions (e.g., for delete form).
+
+Error Handling: Implement basic error handling for API calls (e.g., display a toast notification or an error message).
+
+Section 2: Admin Reports Page Requirements
+Route: /admin/reports
+
+Access: Only ADMIN role.
+
+Layout & Content:
+
+Topper Section (Top Left):
+
+Display the "Topper" of the exams.
+
+Call GET /analytics/reports/topper.
+
+Show: "Current Topper: User ID [X] with [Y] Marks, Performance: [Z]".
+
+Example Visual Description (if image generation is possible): A prominent card with a crown icon, showing "Topper" title, and the formatted topper information clearly.
+
+Report Deletion Form (Top Right):
+
+A form with input fields: User ID (optional), Exam ID (optional).
+
+A "Delete Reports" button.
+
+Behavior:
+
+If both User ID and Exam ID are provided, call DELETE /analytics/reports?userId={userId}&examId={examId}.
+
+If only User ID is provided, call DELETE /analytics/reports?userId={userId}.
+
+If only Exam ID is provided, call DELETE /analytics/reports?examId={examId}.
+
+Add a separate "Delete All Reports" button that calls DELETE /analytics/reports/all.
+
+Confirm deletion with a simple dialog before executing.
+
+Example Visual Description (if image generation is possible): A card titled "Delete Reports". Two input fields labelled "User ID" and "Exam ID" (both optional). A primary button "Delete Selected". Below that, a secondary button "Delete All Reports".
+
+All Reports Table (Main Section):
+
+Display all reports in a dynamic, sortable, and filterable table.
+
+Call GET /analytics/reports/all.
+
+Columns: Report ID, User ID, Exam ID, Total Marks, Performance Metrics.
+
+Implement basic search/filter functionality on User ID and Exam ID.
+
+Implement pagination if the list of reports is expected to be large.
+
+Example Visual Description (if image generation is possible): A table titled "All Exam Reports" with headers for each column. A search bar above the table for filtering. Pagination controls at the bottom.
+
+Section 3: Student Reports Page Requirements
+Route: /student/reports
+
+Access: Only STUDENT role.
+
+Layout & Content:
+
+Top Section (Divided into two columns):
+
+Left Column: Exams Attempted:
+
+Display a list or cards of exams the student has attempted.
+
+Call GET /analytics/reports/user/{currentUserId}.
+
+For each exam, show: Exam ID, Total Marks Obtained, Performance Metrics.
+
+Make each exam entry clickable to view a detailed report (e.g., navigate to /student/reports/{examId} or open a modal).
+
+Example Visual Description (if image generation is possible): A card titled "Exams Attempted" on the left side of the screen. Inside, a list of clickable items, each representing an exam with its ID, marks, and performance.
+
+Right Column: Rank of the Student:
+
+Display the student's overall rank.
+
+Call GET /analytics/reports/rank/{currentUserId}.
+
+Show: "Your Current Rank: [X]".
+
+Example Visual Description (if image generation is possible): A card titled "Your Rank" on the right side of the screen, displaying a large number for the rank and a congratulatory message.
+
+Detailed Report View (Modal or separate page):
+
+When an exam is clicked in the "Exams Attempted" section.
+
+Display the ReportSummaryDTO details for that specific userId and examId.
+
+Call GET /analytics/reports/user/{currentUserId}/exam/{examId}.
+
+Example Visual Description (if image generation is possible): A modal window popping up with the selected exam's report details (Exam ID, User ID, Marks, Performance).
+
+Section 4: Technical Details & Best Practices
+Angular CLI: Use ng generate component, ng generate service, ng generate module for proper structure.
+
+Angular Services: Create dedicated services (e.g., ReportService, AuthService) for API calls and authentication logic.
+
+Routing: Implement Angular Router with lazy loading for modules if applicable, and route guards for role-based access.
+
+UI Component Library: Feel free to suggest and integrate a simple Angular UI component library (e.g., Angular Material, Bootstrap with ng-bootstrap) for cleaner UI elements (tables, forms, cards).
+
+State Management: For this scale, HttpClient and simple service methods returning Observables should suffice. No complex state management (like NgRx) is required unless explicitly requested.
+
+Code Quality: Ensure well-commented, readable code following Angular best practices.
+
+Example Flow for AI Tool:
+
+"Generate an Angular application. First, provide the src folder structure. Then, for each component/service/module, give me the TypeScript, HTML, and SCSS code. Start with the main app.module.ts and app-routing.module.ts. Follow with the AuthService and mock login. Then the ReportService. Finally, implement the AdminReportComponent and StudentReportComponent with their respective templates and logic as described, including the necessary API calls and UI elements. For the Admin page, provide a visual mockup. For the Student page, provide a visual mockup of the top section."
